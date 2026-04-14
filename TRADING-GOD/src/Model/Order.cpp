@@ -12,6 +12,7 @@ Order::Order(std::string ma,double g,double sl) {
 void Order::setMaLenhMua(bool mua) {
     this->maLenhMua = mua;
 }
+
 std::string Order::xuattin() const {
     return (maLenhMua ? "MUA," : "BAN,") + maCoin + "," + std::to_string(gia) + "," + std::to_string(soLuong);
 }

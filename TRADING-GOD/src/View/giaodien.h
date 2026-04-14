@@ -8,11 +8,13 @@
 #include <string>
 #include "../Model/Order.h"
 
+
 class giaodien {
 public:
     static void veLoiChao();
     static void thongBao(std::string msg);
-    static void inSaoKe(double usdt, double btc);
+    static void inSaoKe(double usdt,double btc,double eth);
+    static void inLichSu(const std::vector<Order*>& lichSu);
 };
 
 #endif //TRADING_GOD_GIAODIEN_H

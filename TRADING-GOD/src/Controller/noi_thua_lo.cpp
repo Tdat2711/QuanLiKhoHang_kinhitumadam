@@ -20,7 +20,7 @@ void noi_thua_lo::napDuLieu(std::string duongDanFile) {
     if (!f.is_open()) throw LoiFile(duongDanFile);
 
     std::string dong, thoiGian, gia;
-    std::getline(f, dong); // Bỏ qua tiêu đề CSV
+    std::getline(f, dong);
 
     while (std::getline(f, dong)) {
         std::stringstream ss(dong);
