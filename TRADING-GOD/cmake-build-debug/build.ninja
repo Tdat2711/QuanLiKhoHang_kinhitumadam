@@ -98,6 +98,20 @@ build CMakeFiles/TRADING_GOD.dir/src/Controller/noi_thua_lo.cpp.obj: CXX_COMPILE
   OBJECT_DIR = CMakeFiles\TRADING_GOD.dir
   OBJECT_FILE_DIR = CMakeFiles\TRADING_GOD.dir\src\Controller
 
+build CMakeFiles/TRADING_GOD.dir/src/Model/LongOrder.cpp.obj: CXX_COMPILER__TRADING_GOD_unscanned_Debug C$:/Users/Khac$ Lam$ 's$ Laptop/CLionProjects/TRADING-GOD/src/Model/LongOrder.cpp || cmake_object_order_depends_target_TRADING_GOD
+  CONFIG = Debug
+  DEP_FILE = CMakeFiles\TRADING_GOD.dir\src\Model\LongOrder.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\TRADING_GOD.dir
+  OBJECT_FILE_DIR = CMakeFiles\TRADING_GOD.dir\src\Model
+
+build CMakeFiles/TRADING_GOD.dir/src/Model/ShortOrder.cpp.obj: CXX_COMPILER__TRADING_GOD_unscanned_Debug C$:/Users/Khac$ Lam$ 's$ Laptop/CLionProjects/TRADING-GOD/src/Model/ShortOrder.cpp || cmake_object_order_depends_target_TRADING_GOD
+  CONFIG = Debug
+  DEP_FILE = CMakeFiles\TRADING_GOD.dir\src\Model\ShortOrder.cpp.obj.d
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\TRADING_GOD.dir
+  OBJECT_FILE_DIR = CMakeFiles\TRADING_GOD.dir\src\Model
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target TRADING_GOD
@@ -106,7 +120,7 @@ build CMakeFiles/TRADING_GOD.dir/src/Controller/noi_thua_lo.cpp.obj: CXX_COMPILE
 #############################################
 # Link the executable TRADING_GOD.exe
 
-build TRADING_GOD.exe: CXX_EXECUTABLE_LINKER__TRADING_GOD_Debug CMakeFiles/TRADING_GOD.dir/src/main.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/Exception.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/Trade.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/Order.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/Vidientu.cpp.obj CMakeFiles/TRADING_GOD.dir/src/View/giaodien.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Controller/noi_thua_lo.cpp.obj
+build TRADING_GOD.exe: CXX_EXECUTABLE_LINKER__TRADING_GOD_Debug CMakeFiles/TRADING_GOD.dir/src/main.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/Exception.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/Trade.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/Order.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/Vidientu.cpp.obj CMakeFiles/TRADING_GOD.dir/src/View/giaodien.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Controller/noi_thua_lo.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/LongOrder.cpp.obj CMakeFiles/TRADING_GOD.dir/src/Model/ShortOrder.cpp.obj
   CONFIG = Debug
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32

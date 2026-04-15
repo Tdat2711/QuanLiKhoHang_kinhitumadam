@@ -16,4 +16,8 @@ add_executable(TRADING_GOD src/main.cpp
         src/View/giaodien.h
         src/Controller/noi_thua_lo.cpp
         src/Controller/noi_thua_lo.h
+        src/Model/LongOrder.cpp
+        src/Model/LongOrder.h
+        src/Model/ShortOrder.cpp
+        src/Model/ShortOrder.h
 )

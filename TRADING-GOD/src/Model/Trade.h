@@ -10,6 +10,7 @@ public:
     virtual ~Trade() {}
     // Trả về: 1 (Khớp mua), -1 (Khớp bán), 0 (Không khớp)
     virtual int kiemTraKhop(double giaThiTruong) = 0;
+    virtual bool laLenhMua() = 0;
 };
 
 class LenhGioiHan : public Trade {
@@ -20,6 +21,9 @@ public:
     LenhGioiHan(double g, bool mua);
 
     int kiemTraKhop(double giaThiTruong) override;
+    bool laLenhMua() override {
+        return this->maLenhMua;
+    }
 };
 
 

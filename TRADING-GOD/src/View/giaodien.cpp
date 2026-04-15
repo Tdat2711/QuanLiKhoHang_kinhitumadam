@@ -5,6 +5,7 @@
 #include "giaodien.h"
 #include <iostream>
 #include <iomanip>
+#include "../Model/ShortOrder.h"
 
 
 void giaodien::veLoiChao() {
@@ -23,16 +24,8 @@ void giaodien::inSaoKe(double usdt,double btc,double eth) {
     std::cout << "\n[ TAI SAN ] ETH: " << eth;
 }
 void giaodien::inLichSu(const std::vector<Order*>& lichSu) {
-    std::cout << "\n==========================================" << std::endl;
-    std::cout << "         LICH SU GIAO DICH CHI TIET       " << std::endl;
-    std::cout << "==========================================" << std::endl;
-
-    if (lichSu.empty()) {
-        std::cout << " ( Khong co giao dich nao )" << std::endl;
-    } else {
-        for (size_t i = 0; i < lichSu.size(); ++i) {
-            std::cout << i + 1 << ". " << lichSu[i]->xuattin() << std::endl;
-        }
+    std::cout << "\n--- LICH SU GIAO DICH ---\n";
+    for (Order* o : lichSu) {
+        std::cout << o->loaiLenh() << " | " << o->getMaCoin() << " | " << o->getGia() << " | " << o->getSoLuong() << std::endl;
     }
-    std::cout << "==========================================" << std::endl;
 }

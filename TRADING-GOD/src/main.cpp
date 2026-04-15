@@ -8,6 +8,8 @@
 #include "Model/Order.h"
 #include "View/giaodien.h"
 #include "Model/Exception.h"
+#include "Model/LongOrder.h"
+#include "Model/ShortOrder.h"
 
 int main() {
     Vidientu* vi = nullptr;
@@ -29,8 +31,7 @@ int main() {
 
         while (true) {
             giaodien::inSaoKe(vi->laySoDu("USDT"), vi->laySoDu("BTC"), vi->laySoDu("ETH"));
-            std::cout<<"\n";
-
+            std::cout << "\n";
 
             int menu;
             std::cout << "1. Vao lenh\n2. Thoat\nChon (1-2): ";
@@ -51,40 +52,45 @@ int main() {
             double mucChotLai = tienCuoc * 1.2;
             double mucCatLo = -tienCuoc * 0.6;
 
-            Order lenhTam("BTC", giaVao, tienCuoc);
-            lenhTam.setMaLenhMua(loaiLenh == 1);
-            std::cout << "\n>>> KHOI TAO: " << lenhTam.xuattin() << std::endl;
+            Order* lenhTam = nullptr;
+            if (loaiLenh == 1) {
+                lenhTam = new LongOrder("BTC", giaVao, tienCuoc);
+            } else {
+                lenhTam = new ShortOrder("BTC", giaVao, tienCuoc);
+            }
+
+            std::cout << "\n>>> KHOI TAO: " << lenhTam->xuattin() << std::endl;
 
             while (true) {
                 giaHienTai += dis(gen);
                 double phanTram = (giaHienTai - giaVao) / giaVao;
-                // Leverage x10
+                // Đòn bẩy x10
                 double loiLo = (loaiLenh == 1) ? (tienCuoc * phanTram * 10) : (tienCuoc * (-phanTram) * 10);
 
                 std::cout << "Gia BTC: " << std::fixed << std::setprecision(2) << giaHienTai
                           << " | PnL: " << (loiLo >= 0 ? "+" : "") << loiLo << " USDT" << std::endl;
-
                 if (loiLo >= mucChotLai || loiLo <= mucCatLo) {
-                    bool thắng = (loiLo >= mucChotLai);
-                    std::cout << (thắng ? "\n>>> [THANH CONG] CHOT LAI!" : "\n>>> [THAT BAI] CAT LO!") << std::endl;
+                    bool thang = (loiLo >= mucChotLai);
+                    std::cout << (thang ? "\n>>> [THANH CONG] CHOT LAI!" : "\n>>> [THAT BAI] CAT LO!") << std::endl;
 
                     vi->capNhat("USDT", loiLo);
 
-                    // KHI KHỞI TẠO ORDER, TRUYỀN THÊM BIẾN loiLo VÀO CUỐI
-                    // Cấu trúc: Order(mã, giá_đóng, số_lượng, tiền_lãi_lỗ)
-                    Order* o = new Order("BTC", giaHienTai, tienCuoc);
-                    o->setMaLenhMua(loaiLenh == 1);
-
-                    // Bây giờ gọi xuattin() sẽ hiện đầy đủ thông tin
+                    Order* o = nullptr;
+                    if (loaiLenh == 1) {
+                        o = new LongOrder("BTC", giaHienTai, tienCuoc);
+                    } else {
+                        o = new ShortOrder("BTC", giaHienTai, tienCuoc);
+                    }
                     std::cout << ">>> DONG LENH: " << o->xuattin() << std::endl;
-
                     vi->luuLenh(o);
                     break;
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-
+            // Giải phóng lệnh tạm
+            delete lenhTam;
         }
+
         giaodien::inLichSu(vi->layLichSu());
 
         std::ofstream fileGhi("data.csv");
