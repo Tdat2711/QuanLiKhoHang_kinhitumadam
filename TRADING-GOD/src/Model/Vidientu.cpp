@@ -24,3 +24,9 @@ void Vidientu::luuLenh(Order* o) {
 const std::vector<Order*>& Vidientu::layLichSu() const {
     return lichSu;
 }
+
+bool Vidientu::coDuKhaNang(double soTien) const {
+    if (soTien <= 0) return false;
+    // Kiểm tra trực tiếp tại nguồn dữ liệu (Đúng tiêu chí đóng gói)
+    return taiSan.at("USDT") >= soTien;
+}

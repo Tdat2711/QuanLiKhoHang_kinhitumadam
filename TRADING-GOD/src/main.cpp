@@ -1,114 +1,60 @@
 #include <iostream>
-#include <iomanip>
-#include <random>
-#include <thread>
-#include <chrono>
 #include <fstream>
 #include "Model/Vidientu.h"
-#include "Model/Order.h"
+#include "Controller/noi_thua_lo.h"
 #include "View/giaodien.h"
 #include "Model/Exception.h"
-#include "Model/LongOrder.h"
-#include "Model/ShortOrder.h"
 
 int main() {
+    // Khởi tạo con trỏ ở ngoài để đảm bảo có thể delete trong catch nếu lỗi
     Vidientu* vi = nullptr;
+    noi_thua_lo* controller = nullptr;
 
     try {
+        // 1. Khởi tạo Model với số dư 0 (Controller sẽ nạp số dư thực từ file sau)
+        vi = new Vidientu(0.0);
+
+        // 2. Khởi tạo Controller
+        // Trong Constructor của noi_thua_lo, bạn nên thực hiện việc đọc data.csv
+        controller = new noi_thua_lo(vi);
+
+        // 3. Hiển thị giao diện chào mừng
         giaodien::veLoiChao();
 
-        double vonTuFile = 0.0;
-        std::ifstream fileDoc("data.csv");
-        if (!fileDoc.is_open()) throw LoiFile("data.csv");
+        // 4. Chạy vòng lặp điều khiển chính (Nhạc trưởng điều phối M và V)
+        controller->batDaubieudien();
 
-        fileDoc >> vonTuFile;
-        fileDoc.close();
-        vi = new Vidientu(vonTuFile);
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dis(-1500.0, 1500.0);
-
-        while (true) {
-            giaodien::inSaoKe(vi->laySoDu("USDT"), vi->laySoDu("BTC"), vi->laySoDu("ETH"));
-            std::cout << "\n";
-
-            int menu;
-            std::cout << "1. Vao lenh\n2. Thoat\nChon (1-2): ";
-            std::cin >> menu;
-            if (menu == 2) break;
-
-            double tienCuoc;
-            std::cout << ">>> Nhap so USDT muon cuoc: ";
-            std::cin >> tienCuoc;
-            if (tienCuoc > vi->laySoDu("USDT")) tienCuoc = vi->laySoDu("USDT");
-
-            int loaiLenh;
-            std::cout << "Chon vi the (1: LONG | 2: SHORT): ";
-            std::cin >> loaiLenh;
-
-            double giaVao = 68396.0;
-            double giaHienTai = giaVao;
-            double mucChotLai = tienCuoc * 1.2;
-            double mucCatLo = -tienCuoc * 0.6;
-
-            Order* lenhTam = nullptr;
-            if (loaiLenh == 1) {
-                lenhTam = new LongOrder("BTC", giaVao, tienCuoc);
-            } else {
-                lenhTam = new ShortOrder("BTC", giaVao, tienCuoc);
-            }
-
-            std::cout << "\n>>> KHOI TAO: " << lenhTam->xuattin() << std::endl;
-
-            while (true) {
-                giaHienTai += dis(gen);
-                double phanTram = (giaHienTai - giaVao) / giaVao;
-                // Đòn bẩy x10
-                double loiLo = (loaiLenh == 1) ? (tienCuoc * phanTram * 10) : (tienCuoc * (-phanTram) * 10);
-
-                std::cout << "Gia BTC: " << std::fixed << std::setprecision(2) << giaHienTai
-                          << " | PnL: " << (loiLo >= 0 ? "+" : "") << loiLo << " USDT" << std::endl;
-                if (loiLo >= mucChotLai || loiLo <= mucCatLo) {
-                    bool thang = (loiLo >= mucChotLai);
-                    std::cout << (thang ? "\n>>> [THANH CONG] CHOT LAI!" : "\n>>> [THAT BAI] CAT LO!") << std::endl;
-
-                    vi->capNhat("USDT", loiLo);
-
-                    Order* o = nullptr;
-                    if (loaiLenh == 1) {
-                        o = new LongOrder("BTC", giaHienTai, tienCuoc);
-                    } else {
-                        o = new ShortOrder("BTC", giaHienTai, tienCuoc);
-                    }
-                    std::cout << ">>> DONG LENH: " << o->xuattin() << std::endl;
-                    vi->luuLenh(o);
-                    break;
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-            // Giải phóng lệnh tạm
-            delete lenhTam;
-        }
-
-        giaodien::inLichSu(vi->layLichSu());
-
+        // 5. Ghi lại dữ liệu cuối cùng vào file trước khi kết thúc chương trình
         std::ofstream fileGhi("data.csv");
         if (fileGhi.is_open()) {
             fileGhi << vi->laySoDu("USDT");
             fileGhi.close();
+            std::cout << "\n>>> [HE THONG] Da luu tai san an toan." << std::endl;
         }
 
+        // Giải phóng bộ nhớ
+        delete controller;
         delete vi;
 
     } catch (const LoiFile& e) {
-        std::cerr << "\n[!] Loi he thong: " << e.what() << std::endl;
+        // Xử lý riêng lỗi liên quan đến file dữ liệu
+        std::cerr << "\n[!] Loi tep tin: " << e.what() << std::endl;
+        if (controller) delete controller;
+        if (vi) delete vi;
+        return 1;
+    } catch (const std::exception& e) {
+        // Xử lý các lỗi tiêu chuẩn khác
+        std::cerr << "\n[!] Loi chuong trinh: " << e.what() << std::endl;
+        if (controller) delete controller;
         if (vi) delete vi;
         return 1;
     } catch (...) {
-        std::cerr << "\n[!] Xay ra loi khong xac dinh!" << std::endl;
+        // Phòng hờ các lỗi không xác định
+        std::cerr << "\n[!] Da xay ra loi he thong khong xac dinh!" << std::endl;
+        if (controller) delete controller;
         if (vi) delete vi;
         return 1;
     }
+
     return 0;
 }

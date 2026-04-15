@@ -19,6 +19,7 @@ public:
     void napDuLieu(std::string duongDanFile);
     void themLenhMoi(Trade* t);
     void thucThiGiaoDich();
+    void batDaubieudien();
 };
 
 #endif

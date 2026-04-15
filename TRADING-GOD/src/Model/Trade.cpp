@@ -4,9 +4,18 @@
 
 #include "Trade.h"
 
-LenhGioiHan::LenhGioiHan(double g, bool mua) {
+LenhGioiHan::LenhGioiHan(double g,double stc, bool mua) {
     this->giaCho = g;
+    this->soTienCuoc= stc;
     this->maLenhMua = mua;
+}
+double LenhGioiHan::tinhPnL(double giaThiTruong) const {
+    double phanTram = (giaThiTruong - this->giaCho) / this->giaCho;
+    // Tự động tính theo vị thế Long hoặc Short
+    if (this->maLenhMua) {
+        return this->soTienCuoc * phanTram * 10; // Đòn bẩy x10
+    }
+    return this->soTienCuoc * (-phanTram) * 10;
 }
 
 int LenhGioiHan::kiemTraKhop(double giaThiTruong) {

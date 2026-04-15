@@ -17,6 +17,7 @@ public:
     Vidientu(double usdtBanDau);
     ~Vidientu();
 
+    bool coDuKhaNang(double soTien) const;
     double laySoDu(std::string ma) const;
     void capNhat(std::string ma, double luong);
     void luuLenh(Order* o);
