@@ -20,4 +20,8 @@ add_executable(TRADING_GOD src/main.cpp
         src/Model/LongOrder.h
         src/Model/ShortOrder.cpp
         src/Model/ShortOrder.h
+        src/Model/server.cpp
+        src/Model/server.h
+        data/DataTaiSan.cpp
+        data/DataTaiSan.h
 )

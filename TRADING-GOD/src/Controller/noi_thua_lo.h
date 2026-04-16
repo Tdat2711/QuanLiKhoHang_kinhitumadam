@@ -6,14 +6,16 @@
 #include <string>
 #include "../Model/Vidientu.h"
 #include "../Model/Trade.h"
+#include "../Model/server.h" // Thêm include này
 
 class noi_thua_lo {
 private:
     std::unordered_map<long long, double> duLieuThiTruong;
-    Vidientu* vi;
-    std::vector<Trade*> danhSachLenhCho;
+    Server* sv; // Thay Vidientu* bằng Server* để quản lý tập trung
+    // Không cần vector danhSachLenhCho nữa vì Server đã quản lý trong map rồi
 public:
-    noi_thua_lo(Vidientu* v);
+    // Constructor nhận Server thay vì Vidientu
+    noi_thua_lo(Server* s);
     ~noi_thua_lo();
 
     void napDuLieu(std::string duongDanFile);

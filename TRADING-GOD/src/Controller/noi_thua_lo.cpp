@@ -9,76 +9,33 @@
 #include <chrono>
 #include "../View/giaodien.h"
 #include <iostream>
+#include <iomanip>
 
-noi_thua_lo::noi_thua_lo(Vidientu* v) {
-    this->vi = v;
+// Constructor dùng Server
+noi_thua_lo::noi_thua_lo(Server* s) : sv(s) {}
 
-    // Tự động nạp dữ liệu từ file khi khởi tạo Controller
-    double vonTuFile = 0.0;
-    std::ifstream fileDoc("data.csv");
-    if (fileDoc.is_open()) {
-        fileDoc >> vonTuFile;
-        fileDoc.close();
+noi_thua_lo::~noi_thua_lo() {}
 
-        // Dùng hàm capNhat có sẵn để đưa tiền vào ví
-        this->vi->capNhat("USDT", vonTuFile);
+void noi_thua_lo::napDuLieu(std::string duongDanFile) {
+    std::ifstream file(duongDanFile);
+    if (!file.is_open()) return;
+    long long timestamp;
+    double gia;
+    while (file >> timestamp >> gia) {
+        duLieuThiTruong[timestamp] = gia;
     }
-}
-noi_thua_lo::~noi_thua_lo() {
-    for (auto t : this->danhSachLenhCho) {
-        delete t;
-    }
-    this->danhSachLenhCho.clear();
+    file.close();
 }
 
-// ... các hàm napDuLieu, themLenhMoi giữ nguyên ...
+void noi_thua_lo::themLenhMoi(Trade* t) {
+    if (t != nullptr) {
+        sv->registerTrade(t); // Đẩy vào Server
+    }
+}
 
 void noi_thua_lo::thucThiGiaoDich() {
-    for (auto const& [ts, giaHienTai] : this->duLieuThiTruong) {
-        for (auto it = this->danhSachLenhCho.begin(); it != this->danhSachLenhCho.end(); ) {
-
-            int ketQua = (*it)->kiemTraKhop(giaHienTai);
-
-            // Lấy loại lệnh cực kỳ đơn giản qua hàm ảo
-            bool kiemTraLong = (*it)->laLenhMua();
-
-            if (ketQua == 1 && this->vi->laySoDu("USDT") >= giaHienTai) {
-                // --- KHỚP MUA ---
-                this->vi->capNhat("USDT", -giaHienTai);
-                this->vi->capNhat("BTC", 1.0);
-
-                Order* o = nullptr;
-                if (kiemTraLong == true) {
-                    o = new LongOrder("BTC", giaHienTai, 1.0);
-                } else {
-                    o = new ShortOrder("BTC", giaHienTai, 1.0);
-                }
-                this->vi->luuLenh(o);
-
-                delete *it;
-                it = this->danhSachLenhCho.erase(it);
-            }
-            else if (ketQua == -1 && this->vi->laySoDu("BTC") >= 1.0) {
-                // --- KHỚP BÁN ---
-                this->vi->capNhat("BTC", -1.0);
-                this->vi->capNhat("USDT", giaHienTai);
-
-                Order* o = nullptr;
-                if (kiemTraLong == true) {
-                    o = new LongOrder("BTC", giaHienTai, 1.0);
-                } else {
-                    o = new ShortOrder("BTC", giaHienTai, 1.0);
-                }
-                this->vi->luuLenh(o);
-
-                delete *it;
-                it = this->danhSachLenhCho.erase(it);
-            }
-            else {
-                ++it;
-            }
-        }
-    }
+    // Hàm này Đạt giữ để xử lý khớp lệnh từ file nếu cần
+    // Hiện tại tập trung vào luồng Simulator ở dưới
 }
 
 void noi_thua_lo::batDaubieudien() {
@@ -86,8 +43,12 @@ void noi_thua_lo::batDaubieudien() {
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(-1500.0, 1500.0);
 
+    // Lấy ví từ Server
+    Vidientu* vi = sv->getWallet("User");
+    if (!vi) return;
+
     while (true) {
-        // Gọi View để in sao kê
+        // In sao kê từ ví trong Server
         giaodien::inSaoKe(vi->laySoDu("USDT"), vi->laySoDu("BTC"), vi->laySoDu("ETH"));
 
         int menu;
@@ -99,7 +60,6 @@ void noi_thua_lo::batDaubieudien() {
         std::cout << ">>> Nhap so USDT muon cuoc: ";
         std::cin >> tienCuoc;
 
-        // Gọi Model (Vidientu) để kiểm tra dữ liệu (Encapsulation)
         if (!vi->coDuKhaNang(tienCuoc)) {
             giaodien::thongBao("So du khong du!");
             continue;
@@ -112,21 +72,21 @@ void noi_thua_lo::batDaubieudien() {
         double giaVao = 68396.0;
         double giaHienTai = giaVao;
 
-        // Khởi tạo Trade (Đa hình)
+        // Khởi tạo Trade và đăng ký vào Server (Đa hình)
         Trade* lenhHienTai = new LenhGioiHan(giaVao, tienCuoc, (loaiLenh == 1));
+        int idLenh = sv->registerTrade(lenhHienTai); // Server quản lý ID
 
         while (true) {
             giaHienTai += dis(gen);
             double loiLo = lenhHienTai->tinhPnL(giaHienTai);
 
-            // Gọi View để in giá và PnL
             std::cout << "Gia BTC: " << std::fixed << std::setprecision(2) << giaHienTai
                       << " | PnL: " << (loiLo >= 0 ? "+" : "") << loiLo << " USDT" << std::endl;
 
+            // Chốt lời 20% hoặc cắt lỗ 40% (Giữ nguyên logic cũ của Đạt)
             if (loiLo >= tienCuoc * 1.2 || loiLo <= -tienCuoc * 0.6) {
                 vi->capNhat("USDT", loiLo);
 
-                // Tạo lịch sử Order (Polymorphism)
                 Order* o = (loaiLenh == 1) ?
                     (Order*)new LongOrder("BTC", giaHienTai, tienCuoc) :
                     (Order*)new ShortOrder("BTC", giaHienTai, tienCuoc);
@@ -137,6 +97,8 @@ void noi_thua_lo::batDaubieudien() {
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-        delete lenhHienTai;
+
+        // Sau khi xong lệnh thì xóa khỏi Server để dọn bộ nhớ
+        sv->removeTrade(idLenh);
     }
 }
