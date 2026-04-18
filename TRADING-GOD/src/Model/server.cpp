@@ -9,21 +9,17 @@ Server::~Server() {
     clearAll();
 }
 
-// Đăng ký ví của người dùng vào hệ thống
 void Server::registerWallet(std::string name, Vidientu* v) {
     if (v != nullptr) {
         wallets.emplace(name, v);
     }
 }
-
-// Lưu lệnh mới vào hệ thống và trả về mã ID để theo dõi
 int Server::registerTrade(Trade* t) {
     int id = nextTradeID++;
     activeTrades.emplace(id, t);
     return id;
 }
 
-// Xóa lệnh và giải phóng bộ nhớ khi người dùng đóng vị thế
 void Server::removeTrade(int id) {
     auto it = activeTrades.find(id);
     if (it != activeTrades.end()) {
@@ -32,7 +28,6 @@ void Server::removeTrade(int id) {
     }
 }
 
-// Tìm ví theo tên người dùng
 Vidientu* Server::getWallet(std::string name) {
     auto it = wallets.find(name);
     if (it == wallets.end()) return nullptr;
@@ -44,7 +39,7 @@ std::unordered_map<int, Trade*>& Server::getAllActiveTrades() {
     return activeTrades;
 }
 
-// Dọn dẹp bộ nhớ khi tắt Server
+// Dọn dẹp bộ nhớ
 void Server::clearAll() {
     for (auto& pair : activeTrades) {
         delete pair.second;

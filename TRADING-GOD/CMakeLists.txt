@@ -24,4 +24,6 @@ add_executable(TRADING_GOD src/main.cpp
         src/Model/server.h
         data/DataTaiSan.cpp
         data/DataTaiSan.h
+        src/Controller/AppController.cpp
+        src/Controller/AppController.h
 )

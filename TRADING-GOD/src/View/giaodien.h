@@ -15,6 +15,10 @@ public:
     static void thongBao(std::string msg);
     static void inSaoKe(double usdt,double btc,double eth);
     static void inLichSu(const std::vector<Order*>& lichSu);
+    static int layLuaChonMenu();
+    static double nhapSoTien(std::string thongBao);
+    static int chonLoaiViThe();
+    static void hienThiBangDienTu(double gia, double pnl);
 };
 
 #endif //TRADING_GOD_GIAODIEN_H

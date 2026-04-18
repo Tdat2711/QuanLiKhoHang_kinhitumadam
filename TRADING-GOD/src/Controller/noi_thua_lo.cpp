@@ -34,71 +34,64 @@ void noi_thua_lo::themLenhMoi(Trade* t) {
 }
 
 void noi_thua_lo::thucThiGiaoDich() {
-    // Hàm này Đạt giữ để xử lý khớp lệnh từ file nếu cần
-    // Hiện tại tập trung vào luồng Simulator ở dưới
 }
 
 void noi_thua_lo::batDaubieudien() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(-1500.0, 1500.0);
+    std::uniform_real_distribution<> dis(-1500.0, 1500.0); // Biến động giá
 
-    // Lấy ví từ Server
     Vidientu* vi = sv->getWallet("User");
-    if (!vi) return;
+    if (!vi) {
+        giaodien::thongBao("Loi: Khong tim thay vi nguoi dung!");
+        return;
+    }
 
     while (true) {
-        // In sao kê từ ví trong Server
         giaodien::inSaoKe(vi->laySoDu("USDT"), vi->laySoDu("BTC"), vi->laySoDu("ETH"));
 
-        int menu;
-        std::cout << "\n1. Vao lenh\n2. Thoat\nChon (1-2): ";
-        std::cin >> menu;
+        int menu = giaodien::layLuaChonMenu();
         if (menu == 2) break;
 
-        double tienCuoc;
-        std::cout << ">>> Nhap so USDT muon cuoc: ";
-        std::cin >> tienCuoc;
+        double tienCuoc = giaodien::nhapSoTien("Nhap so USDT muon cuoc");
 
         if (!vi->coDuKhaNang(tienCuoc)) {
-            giaodien::thongBao("So du khong du!");
+            giaodien::thongBao("So du khong du de thuc hien lenh!");
             continue;
         }
 
-        int loaiLenh;
-        std::cout << "Chon vi the (1: LONG | 2: SHORT): ";
-        std::cin >> loaiLenh;
+        int loaiLenh = giaodien::chonLoaiViThe();
 
-        double giaVao = 68396.0;
+        double giaVao = 70396.0;
         double giaHienTai = giaVao;
 
-        // Khởi tạo Trade và đăng ký vào Server (Đa hình)
         Trade* lenhHienTai = new LenhGioiHan(giaVao, tienCuoc, (loaiLenh == 1));
-        int idLenh = sv->registerTrade(lenhHienTai); // Server quản lý ID
+        int idLenh = sv->registerTrade(lenhHienTai);
 
         while (true) {
             giaHienTai += dis(gen);
             double loiLo = lenhHienTai->tinhPnL(giaHienTai);
 
-            std::cout << "Gia BTC: " << std::fixed << std::setprecision(2) << giaHienTai
-                      << " | PnL: " << (loiLo >= 0 ? "+" : "") << loiLo << " USDT" << std::endl;
+            giaodien::hienThiBangDienTu(giaHienTai, loiLo);
 
-            // Chốt lời 20% hoặc cắt lỗ 40% (Giữ nguyên logic cũ của Đạt)
             if (loiLo >= tienCuoc * 1.2 || loiLo <= -tienCuoc * 0.6) {
                 vi->capNhat("USDT", loiLo);
 
                 Order* o = (loaiLenh == 1) ?
                     (Order*)new LongOrder("BTC", giaHienTai, tienCuoc) :
                     (Order*)new ShortOrder("BTC", giaHienTai, tienCuoc);
+
                 vi->luuLenh(o);
 
+                std::cout << std::endl;
                 giaodien::thongBao(loiLo > 0 ? "CHOT LAI THANH CONG!" : "DA CAT LO!");
                 break;
             }
+
+            // Tốc độ nhảy giá (100ms)
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
-        // Sau khi xong lệnh thì xóa khỏi Server để dọn bộ nhớ
         sv->removeTrade(idLenh);
     }
 }

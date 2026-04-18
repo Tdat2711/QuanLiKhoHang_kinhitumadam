@@ -29,3 +29,30 @@ void giaodien::inLichSu(const std::vector<Order*>& lichSu) {
         std::cout << o->loaiLenh() << " | " << o->getMaCoin() << " | " << o->getGia() << " | " << o->getSoLuong() << std::endl;
     }
 }
+
+int giaodien::layLuaChonMenu() {
+    int menu;
+    std::cout << "\n1. Vao lenh\n2. Thoat\nChon (1-2): ";
+    std::cin >> menu;
+    return menu;
+}
+
+double giaodien::nhapSoTien(std::string thongBao) {
+    double tien;
+    std::cout << ">>> " << thongBao << ": ";
+    std::cin >> tien;
+    return tien;
+}
+
+int giaodien::chonLoaiViThe() {
+    int loai;
+    std::cout << "Chon vi the (1: LONG | 2: SHORT): ";
+    std::cin >> loai;
+    return loai;
+}
+
+void giaodien::hienThiBangDienTu(double gia, double pnl) {
+    // Sử dụng \r để giá nhảy trên cùng một dòng, tạo hiệu ứng bảng điện real-time
+    std::cout << "\rGia BTC: " << std::fixed << std::setprecision(2) << gia
+              << " | PnL: " << (pnl >= 0 ? "+" : "") << pnl << " USDT   " << std::flush;
+}

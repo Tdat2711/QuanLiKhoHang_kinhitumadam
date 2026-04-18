@@ -8,19 +8,16 @@
 
 class Server {
 private:
-    // Quản lý lệnh đang chạy (ID -> Đối tượng Trade)
     std::unordered_map<int, Trade*> activeTrades;
-
-    // Quản lý ví (Tên người dùng -> Đối tượng Ví)
     std::unordered_map<std::string, Vidientu*> wallets;
 
-    int nextTradeID; // Biến đếm để tự động tạo ID duy nhất cho mỗi lệnh
+    int nextTradeID;
 
 public:
     Server();
     ~Server();
 
-    // Các hàm nghiệp vụ (Service Methods)
+    // Các hàm nghiệp vụ
     void registerWallet(std::string name, Vidientu* v);
     int registerTrade(Trade* t);
     void removeTrade(int id);
@@ -29,7 +26,7 @@ public:
     Vidientu* getWallet(std::string name);
     std::unordered_map<int, Trade*>& getAllActiveTrades();
 
-    void clearAll(); // Giải phóng toàn bộ bộ nhớ
+    void clearAll();
 };
 
 #endif
